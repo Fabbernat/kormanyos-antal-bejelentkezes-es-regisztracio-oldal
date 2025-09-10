@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const usersFile = path.join(__dirname, "..", "json", "users.json");
+const usersFile = path.join(__dirname, "..", "json", "json/users.json");
 
 function addUser({ fullName, username, password, email }) {
   try {

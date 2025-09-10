@@ -1,0 +1,11 @@
+{
+    "users": [
+        {
+            "username": "cimbi",
+            "age": 23,
+            "password": "123456",
+            "hashed-password": "$2y$10$Qj2AA7jCZ.lj.zwfUbD8Guq7rCrRlb30xYh6QXMX35WbJyV3W3qEe",
+            "email": "cimbi@gmail.com"
+        }
+    ]
+}

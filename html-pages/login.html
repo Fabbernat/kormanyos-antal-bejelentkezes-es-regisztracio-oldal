@@ -1,164 +1,148 @@
 <!DOCTYPE html>
 <html lang="hu">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Saját oldal</title>
-		<link rel="stylesheet" href="../css/style.css" />
-	</head>
 
-	<body>
-		<header>
-			<h1>Üdvözöllek az oldalamon</h1>
-			<nav>
-				<ul>
-					<li><a href="index.html">Főoldal</a></li>
-					<li><a href="signup.html">Regisztráció</a></li>
-					<li><a href="login.html">Bejelentkezés</a></li>
-					<li><a href="../js/logout.js">Kijelentkezés</a></li>
-				</ul>
-			</nav>
-		</header>
-		<main id="page">
-			<div style="margin: auto; width: 50%; text-align: center">
-				<h1>Bejelentkezés</h1>
-				<form
-					id="loginForm"
-					action="#"
-					method="POST"
-					enctype="multipart/form-data"
-					name="loginForm"
-					onsubmit="return validateForm(event)"
-				>
-					<fieldset>
-						<legend>Bejelentkezés adatok</legend>
-						<label
-							>Felhasználónév: <br /><input type="text" name="felhasznalonev"
-						/></label>
-						<br />
-						<label>Jelszó: <br /><input type="password" name="jelszo" /></label>
-						<br />
-						<input type="reset" name="reset-btn" value="Törlés" />
-						<input
-							type="submit"
-							value="Bejelentkezés"
-							name="login-submit-btn"
-						/>
-						<br /><br />
-						<script>
-							console.log(uzenet);
-						</script>
-					</fieldset>
-				</form>
-				<div id="message"></div>
-			</div>
-			<div style="margin: auto; width: 50%; text-align: center">
-				<a href="signup.html">Nincs még fiókod? Regisztrálj itt!</a>
-			</div>
-		</main>
-		<script>
-			function validateForm(event) {
-				event.preventDefault();
-				const form = event.target;
-				const errors = [];
+<head>
+    <meta charset="UTF-8" />
+    <title>Saját oldal</title>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
 
-				const felhasznalonev = form.felhasznalonev.value.trim();
-				const jelszo = form.jelszo.value.trim();
+<body>
+    <header>
+        <h1>Üdvözöllek az oldalamon</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Főoldal</a></li>
+                <li><a href="signup.html">Regisztráció</a></li>
+                <li><a href="login.html">Bejelentkezés</a></li>
+                <li><a href="../js/logout.js">Kijelentkezés</a></li>
+            </ul>
+        </nav>
+    </header>
 
-				if (!felhasznalonev) {
-					errors.push("A felhasználónév megadása kötelező.");
-				}
+    <main id="page">
+        <div style="margin: auto; width: 50%; text-align: center">
+            <h1>Bejelentkezés</h1>
+            <form id="loginForm" action="#" method="POST" enctype="multipart/form-data" name="loginForm"
+                onsubmit="return validateForm(event)">
+                <fieldset>
+                    <legend>Bejelentkezés adatok</legend>
+                    <label>
+                        Felhasználónév: <br />
+                        <input type="text" name="felhasznalonev" />
+                    </label><br />
+                    <label>
+                        Jelszó: <br />
+                        <input type="password" name="jelszo" />
+                    </label><br />
+                    <input type="reset" name="reset-btn" value="Törlés" />
+                    <input type="submit" name="login-submit-btn" value="Bejelentkezés" />
+                </fieldset>
+            </form>
+            <hr>
+            <div id="message"></div>
+            <hr>
+        </div>
+        <div style="margin: auto; width: 50%; text-align: center">
+            <a href="signup.html">Nincs még fiókod? Regisztrálj itt!</a>
+        </div>
+    </main>
+    <script>
+        const dummyLoginDataToAccept = {
+            "test": "test",
+            "admin": "123456",
+            "user": "1234"
+        };
 
-				if (!jelszo) {
-					errors.push("A jelszó megadása kötelező.");
-				}
+        const uzenet = "Üdvözöllek az oldalamon!";
+        document.getElementById("message").innerText = uzenet;
 
-				if (errors.length > 0) {
-					const messageBox = document.getElementById("message");
-					messageBox.style.color = "red";
-					messageBox.innerHTML = errors.join("<br>");
-					return false;
-				}
+        function validateForm(event) {
+            event.preventDefault();
 
-				return true;
-			}
-			// Betöltjük a felhasználókat
-			let fiokok = {};
+            let fullName = document.forms["registrationForm"]["full-name"].value;
+            let username = document.forms["registrationForm"]["username"].value;
+            let password = document.forms["registrationForm"]["password"].value;
+            let passwordCheck = document.forms["registrationForm"]["password-check"].value;
+            let email = document.forms["registrationForm"]["email"].value;
 
-			fetch("json/users.json")
-				.then((r) => r.json())
-				.then((data) => {
-					fiokok = data;
-				});
+            if (username in dummySignupDataToAccept) {
+                messageBox.style.color = "green";
+                messageBox.innerHTML = "Sikeres teszt regisztráció!";
+                return true;
+            }
 
-			document
-				.getElementById("loginForm")
-				.addEventListener("submit", function (e) {
-					e.preventDefault();
+            let errors = [];
 
-					const felhasznalonev = this.felhasznalonev.value.trim();
-					const jelszo = this.jelszo.value.trim();
+            if (fullName === "") {
+                errors.push("A teljes név megadása kötelező!");
+            }
 
-					const messageBox = document.getElementById("message");
-					messageBox.innerHTML = "";
+            if (username === "") {
+                errors.push("A felhasználónév megadása kötelező!");
+            }
 
-					if (errors.length > 0) {
-						messageBox.style.color = "red";
-						messageBox.innerHTML = errors.join("<br>");
-						return false;
-					}
+            if (password === "" || passwordCheck === "") {
+                errors.push("A jelszó és az ellenőrző jelszó megadása kötelező!");
+            } else if (password !== passwordCheck) {
+                errors.push("A jelszó és az ellenőrző jelszó nem egyezik!");
+            }
 
-					// ---- "find" the user (localStorage version) ----
-					let users = JSON.parse(localStorage.getItem("users") || "[]");
-					const user = users.find(
-						(user) =>
-							user.username === felhasznalonev && user.password === jelszo
-					);
+            if (email === "") {
+                errors.push("Az email-cím megadása kötelező!");
+            } else if (!isValidEmail(email)) {
+                errors.push("Az email-cím formátuma helytelen!");
+            }
 
-					if (user) {
-						messageBox.style.color = "green";
-						messageBox.innerHTML = "Sikeres bejelentkezés!";
-						return true;
-					} else {
-						messageBox.style.color = "red";
+            const messageBox = document.getElementById("message");
+            messageBox.innerHTML = "";
 
-						// Üres mezők ellenőrzése
-						if (!felhasznalonev && !jelszo) {
-							messageBox.innerHTML +=
-								"Hiba: Kérlek add meg a felhasználónevet és a jelszót!";
-							return;
-						}
-						if (!felhasznalonev) {
-							messageBox.innerHTML +=
-								"Hiba: Kérlek add meg a felhasználónevet!";
-							return;
-						}
-						if (!jelszo) {
-							messageBox.innerHTML += "Hiba: Kérlek add meg a jelszót!";
-							return;
-						}
+            if (errors.length > 0) {
+                messageBox.style.color = "red";
+                messageBox.innerHTML = errors.join("<br>");
+                return false;
+            }
 
-						// Felhasználó ellenőrzése
-						if (!(felhasznalonev in fiokok)) {
-							messageBox.innerHTML += "Hiba: Ez a felhasználónév nem létezik!";
-							return;
-						}
+            // ---- "save" the user (localStorage version) ----
+            let users = JSON.parse(localStorage.getItem("users") || "[]");
+            users.push({ fullName, username, password, email });
+            localStorage.setItem("users", JSON.stringify(users));
 
-						// Jelszó ellenőrzése
-						if (fiokok[felhasznalonev] !== jelszo) {
-							messageBox.innerHTML += "Hiba: Hibás jelszó!";
-							return;
-						}
+            messageBox.style.color = "green";
+            messageBox.innerHTML = "Sikeres regisztráció!";
+            return true;
+        }
 
-						// Jelszó ellenőrzése
-						if (fiokok[felhasznalonev] !== jelszo) {
-							messageBox.innerHTML += "Hiba: Hibás jelszó!";
-							return;
-						}
-					}
-					// Sikeres belépés
-					alert("Sikeres belépés! Üdv újra, " + felhasznalonev + "!");
-					window.location.href = "index.html";
-				});
-		</script>
-	</body>
+        function isValidEmail(email) {
+            let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const felhasznalonev = e.target["username"].value.trim();
+            const jelszo = e.target["password"].value.trim();
+
+            // users.json betöltése
+            let fiokok = {};
+            fetch("json/users.json")
+                .then(r => r.json())
+                .then(data => { fiokok = data; });
+
+            try {
+                const response = await fetch('json/users.json');
+                if (!response.ok) {
+                    throw new Error('Hálózati hiba a users.json betöltésekor');
+                }
+
+                const data = await response.json();
+                document.getElementById("message").innerText = data.message || data.error;
+            } catch (error) {
+                console.error("Hiba:", error);
+            }
+        });
+    </script>
+</body>
+
 </html>

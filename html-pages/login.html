@@ -23,8 +23,7 @@
     <main id="page">
         <div style="margin: auto; width: 50%; text-align: center">
             <h1>Bejelentkezés</h1>
-            <form id="loginForm" action="#" method="POST" enctype="multipart/form-data" name="loginForm"
-                onsubmit="return validateForm(event)">
+            <form id="loginForm" action="#" method="POST" enctype="multipart/form-data" name="loginForm">
                 <fieldset>
                     <legend>Bejelentkezés adatok</legend>
                     <label>
@@ -40,7 +39,9 @@
                 </fieldset>
             </form>
             <hr>
+            <div id="greetings"></div>
             <div id="message"></div>
+            <div id="error-messages"></div>
             <hr>
         </div>
         <div style="margin: auto; width: 50%; text-align: center">
@@ -55,93 +56,80 @@
         };
 
         const uzenet = "Üdvözöllek az oldalamon!";
-        document.getElementById("message").innerText = uzenet;
+        document.getElementById("greetings").innerText = uzenet;
 
         function validateForm(event) {
             event.preventDefault();
 
-            let fullName = document.forms["registrationForm"]["full-name"].value;
-            let username = document.forms["registrationForm"]["username"].value;
-            let password = document.forms["registrationForm"]["password"].value;
-            let passwordCheck = document.forms["registrationForm"]["password-check"].value;
-            let email = document.forms["registrationForm"]["email"].value;
+            let username = document.forms["loginForm"]["felhasznalonev"].value;
+            let password = document.forms["loginForm"]["jelszo"].value;
 
-            if (username in dummySignupDataToAccept) {
+            if (username in dummyLoginDataToAccept && password === dummyLoginDataToAccept[username]) {
+                const messageBox = document.getElementById("message");
                 messageBox.style.color = "green";
-                messageBox.innerHTML = "Sikeres teszt regisztráció!";
+                messageBox.innerHTML = "Sikeres teszt bejelentkezés!";
                 return true;
             }
 
             let errors = [];
 
-            if (fullName === "") {
-                errors.push("A teljes név megadása kötelező!");
-            }
 
             if (username === "") {
                 errors.push("A felhasználónév megadása kötelező!");
             }
 
-            if (password === "" || passwordCheck === "") {
-                errors.push("A jelszó és az ellenőrző jelszó megadása kötelező!");
-            } else if (password !== passwordCheck) {
-                errors.push("A jelszó és az ellenőrző jelszó nem egyezik!");
-            }
-
-            if (email === "") {
-                errors.push("Az email-cím megadása kötelező!");
-            } else if (!isValidEmail(email)) {
-                errors.push("Az email-cím formátuma helytelen!");
+            if (password === "") {
+                errors.push("A jelszó megadása kötelező!");
             }
 
             const messageBox = document.getElementById("message");
-            messageBox.innerHTML = "";
 
-            if (errors.length > 0) {
-                messageBox.style.color = "red";
-                messageBox.innerHTML = errors.join("<br>");
-                return false;
-            }
+            document.getElementById("loginForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
 
-            // ---- "save" the user (localStorage version) ----
-            let users = JSON.parse(localStorage.getItem("users") || "[]");
-            users.push({ fullName, username, password, email });
-            localStorage.setItem("users", JSON.stringify(users));
+                const username = e.target["felhasznalonev"].value.trim();
+                const password = e.target["jelszo"].value.trim();
+                let errors = [];
 
-            messageBox.style.color = "green";
-            messageBox.innerHTML = "Sikeres regisztráció!";
-            return true;
-        }
-
-        function isValidEmail(email) {
-            let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const felhasznalonev = e.target["username"].value.trim();
-            const jelszo = e.target["password"].value.trim();
-
-            // users.json betöltése
-            let fiokok = {};
-            fetch("json/users.json")
-                .then(r => r.json())
-                .then(data => { fiokok = data; });
-
-            try {
-                const response = await fetch('json/users.json');
-                if (!response.ok) {
-                    throw new Error('Hálózati hiba a users.json betöltésekor');
+                if (username === "") {
+                    errors.push("A felhasználónév megadása kötelező!");
                 }
 
-                const data = await response.json();
-                document.getElementById("message").innerText = data.message || data.error;
-            } catch (error) {
-                console.error("Hiba:", error);
-            }
+                if (password === "") {
+                    errors.push("A jelszó megadása kötelező!");
+                }
+
+                if (username in dummyLoginDataToAccept && password === dummyLoginDataToAccept[username]) {
+                    messageBox.style.color = "green";
+                    messageBox.innerHTML = "Sikeres teszt bejelentkezés!";
+                    return;
+                }
+
+                if (errors.length > 0) {
+                    messageBox.style.color = "red";
+                    messageBox.innerHTML = errors.join("<br>");
+                    return;
+                }
+
+                // users.json fetch (demo only, errors logged)
+                try {
+                    const fiokok = await fetch('json/users.json');
+                    if (!fiokok.ok) {
+                        throw new Error('Hálózati hiba a users.json betöltésekor');
+                    }
+                    const data = await fiokok.json();
+                    console.log("Users.json loaded:", data);
+                } catch (error) {
+                    console.error("Hiba:", error);
+                }
+
+                messageBox.style.color = "green";
+                messageBox.innerHTML = "Sikeres bejelentkezés!";
+            });
+
+            document.getElementById("error-messages").innerText = errors.join("\n");
         });
+
     </script>
 </body>
 

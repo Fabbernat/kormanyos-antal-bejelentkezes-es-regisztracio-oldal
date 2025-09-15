@@ -46,7 +46,9 @@
         </fieldset>
       </form>
       <hr>
+      <div id="greetings"></div>
       <div id="message"></div>
+      <div id="error-messages"></div>
       <hr>
     </div>
     <div style="margin: auto; width: 50%; text-align: center">
@@ -61,7 +63,12 @@
     };
 
     const uzenet = "Üdvözöllek az oldalamon!";
-    document.getElementById("message").innerText = uzenet;
+    document.getElementById("greetings").innerText = uzenet;
+
+    /* global */
+    const messageBox = document.getElementById("message");
+    const errorBox = document.getElementById("error-messages");
+    messageBox.innerHTML = "";
 
     function validateForm(event) {
       event.preventDefault();
@@ -72,19 +79,22 @@
       let passwordCheck = document.forms["registrationForm"]["password-check"].value;
       let email = document.forms["registrationForm"]["email"].value;
 
-      if (username in dummySignupDataToAccept) {
+      if (username in dummySignupDataToAccept && password === dummySignupDataToAccept[username]) {
         messageBox.style.color = "green";
         messageBox.innerHTML = "Sikeres teszt regisztráció!";
         return true;
       }
 
+      // ---- "save" the user (localStorage version) ----
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
       let errors = [];
 
-      if (fullName === "") {
+      if (fullName.trim() === "") {
         errors.push("A teljes név megadása kötelező!");
       }
 
-      if (username === "") {
+      if (username.trim() === "") {
         errors.push("A felhasználónév megadása kötelező!");
       }
 
@@ -94,29 +104,32 @@
         errors.push("A jelszó és az ellenőrző jelszó nem egyezik!");
       }
 
-      if (email === "") {
+      if (email.trim() === "") {
         errors.push("Az email-cím megadása kötelező!");
       } else if (!isValidEmail(email)) {
         errors.push("Az email-cím formátuma helytelen!");
       }
 
-      const messageBox = document.getElementById("message");
-      messageBox.innerHTML = "";
+      if (users.some(u => u.username === username.trim())) {
+        errors.push("A felhasználónév már foglalt!");
+      }
 
       if (errors.length > 0) {
         messageBox.style.color = "red";
         messageBox.innerHTML = errors.join("<br>");
+        errorBox.innerText = errors.join("\n");
         return false;
       }
 
-      // ---- "save" the user (localStorage version) ----
-      let users = JSON.parse(localStorage.getItem("users") || "[]");
       users.push({ fullName, username, password, email });
       localStorage.setItem("users", JSON.stringify(users));
 
       messageBox.style.color = "green";
       messageBox.innerHTML = "Sikeres regisztráció!";
+      errorBox.innerText = "";
       return true;
+
+      document.getElementById("error-messages").innerText = errors.join("\n");
     }
 
     function isValidEmail(email) {
@@ -124,27 +137,6 @@
       return emailRegex.test(email);
     }
 
-    document.getElementById("registrationForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const fullName = e.target["full-name"].value.trim();
-      const username = e.target["username"].value.trim();
-      const password = e.target["password"].value.trim();
-      const email = e.target["email"].value.trim();
-
-      try {
-        const response = await fetch("/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fullName, username, password, email }),
-        });
-
-        const data = await response.json();
-        document.getElementById("message").innerText = data.message || data.error;
-      } catch (error) {
-        console.error("Hiba:", error);
-      }
-    });
   </script>
 </body>
 

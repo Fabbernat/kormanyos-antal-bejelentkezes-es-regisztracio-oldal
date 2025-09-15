@@ -58,79 +58,55 @@
         const uzenet = "Üdvözöllek az oldalamon!";
         document.getElementById("greetings").innerText = uzenet;
 
-        function validateForm(event) {
-            event.preventDefault();
+        const loginForm = document.getElementById("loginForm");
+        const messageBox = document.getElementById("message");
+        const errorBox = document.getElementById("error-messages");
 
-            let username = document.forms["loginForm"]["felhasznalonev"].value;
-            let password = document.forms["loginForm"]["jelszo"].value;
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-            if (username in dummyLoginDataToAccept && password === dummyLoginDataToAccept[username]) {
-                const messageBox = document.getElementById("message");
-                messageBox.style.color = "green";
-                messageBox.innerHTML = "Sikeres teszt bejelentkezés!";
-                return true;
-            }
-
+            // Trim input
+            const username = e.target["felhasznalonev"].value.trim();
+            const password = e.target["jelszo"].value.trim();
             let errors = [];
 
+            // Validation
+            if (username === "") errors.push("A felhasználónév megadása kötelező!");
+            if (password === "") errors.push("A jelszó megadása kötelező!");
 
-            if (username === "") {
-                errors.push("A felhasználónév megadása kötelező!");
-            }
-
-            if (password === "") {
-                errors.push("A jelszó megadása kötelező!");
-            }
-
-            const messageBox = document.getElementById("message");
-
-            document.getElementById("loginForm").addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                const username = e.target["felhasznalonev"].value.trim();
-                const password = e.target["jelszo"].value.trim();
-                let errors = [];
-
-                if (username === "") {
-                    errors.push("A felhasználónév megadása kötelező!");
-                }
-
-                if (password === "") {
-                    errors.push("A jelszó megadása kötelező!");
-                }
-
-                if (username in dummyLoginDataToAccept && password === dummyLoginDataToAccept[username]) {
-                    messageBox.style.color = "green";
-                    messageBox.innerHTML = "Sikeres teszt bejelentkezés!";
-                    return;
-                }
-
-                if (errors.length > 0) {
-                    messageBox.style.color = "red";
-                    messageBox.innerHTML = errors.join("<br>");
-                    return;
-                }
-
-                // users.json fetch (demo only, errors logged)
-                try {
-                    const fiokok = await fetch('json/users.json');
-                    if (!fiokok.ok) {
-                        throw new Error('Hálózati hiba a users.json betöltésekor');
-                    }
-                    const data = await fiokok.json();
-                    console.log("Users.json loaded:", data);
-                } catch (error) {
-                    console.error("Hiba:", error);
-                }
-
+            // Dummy login check
+            if (username in dummyLoginDataToAccept && password === dummyLoginDataToAccept[username]) {
                 messageBox.style.color = "green";
-                messageBox.innerHTML = "Sikeres bejelentkezés!";
-            });
+                messageBox.innerHTML = "Sikeres teszt bejelentkezés!";
+                errorBox.innerText = "";
+                return;
+            }
 
-            document.getElementById("error-messages").innerText = errors.join("\n");
+            // Show validation errors
+            if (errors.length > 0) {
+                messageBox.style.color = "red";
+                messageBox.innerHTML = errors.join("<br>");
+                errorBox.innerText = errors.join("\n");
+                return;
+            }
+
+            // Fetch users.json for demo (errors logged)
+            try {
+                const fiokok = await fetch('json/users.json');
+                if (!fiokok.ok) throw new Error('Hálózati hiba a users.json betöltésekor');
+                const data = await fiokok.json();
+                console.log("Users.json loaded:", data);
+            } catch (error) {
+                console.error("Hiba:", error);
+            }
+
+            // Successful login message
+            messageBox.style.color = "green";
+            messageBox.innerHTML = "Sikeres bejelentkezés!";
+            errorBox.innerText = "";
         });
-
     </script>
+
 </body>
 
 </html>
